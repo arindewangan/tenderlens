@@ -1,0 +1,76 @@
+:root {
+  --ink: #1a2332; --muted: #5b6b7f; --accent: #0f6c3f; --accent2: #e8730c;
+  --bg: #f7f9fb; --card: #ffffff; --line: #e2e8f0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+       color: var(--ink); background: var(--bg); line-height: 1.55; }
+.topbar { display: flex; justify-content: space-between; align-items: center;
+  padding: 0.8rem 1.5rem; background: var(--ink); color: #fff; }
+.topbar a { color: #fff; text-decoration: none; margin-left: 1rem; }
+.brand { font-weight: 800; font-size: 1.25rem; margin-left: 0 !important; }
+.demo-banner { background: #fff3cd; color: #7a5b00; padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid #ffe08a; font-size: 0.9rem; }
+.container { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+.footer { text-align: center; color: var(--muted); font-size: 0.85rem;
+  padding: 2rem 1rem; border-top: 1px solid var(--line); margin-top: 2rem; }
+.hero { text-align: center; padding: 2.5rem 1rem; }
+.hero h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+.lede { color: var(--muted); max-width: 640px; margin: 0 auto 1.5rem; }
+.searchbar { display: flex; gap: 0.5rem; max-width: 560px; margin: 0 auto; }
+.searchbar.small { margin: 0 0 1rem; }
+.searchbar input { flex: 1; padding: 0.7rem 1rem; border: 1px solid var(--line);
+  border-radius: 8px; font-size: 1rem; }
+.searchbar button, .btn { background: var(--accent); color: #fff; border: none;
+  padding: 0.7rem 1.4rem; border-radius: 8px; font-size: 1rem; cursor: pointer;
+  text-decoration: none; display: inline-block; }
+.btn.small { padding: 0.4rem 0.9rem; font-size: 0.85rem; }
+.btn.ghost { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+.cta-row { margin-top: 1.5rem; display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.how { margin-top: 2.5rem; }
+.steps { display: grid; gap: 1rem; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.steps li { background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 1rem; }
+.track-note { margin-top: 2rem; background: #eef6f0; border: 1px solid #cde7d4;
+  border-radius: 10px; padding: 1rem 1.25rem; }
+.cards { display: grid; gap: 1rem; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 1.1rem 1.25rem; }
+.card-head { display: flex; gap: 1rem; align-items: flex-start; }
+.card h3 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+.card h3 a { color: var(--ink); text-decoration: none; }
+.card h3 a:hover { text-decoration: underline; }
+.meta { color: var(--muted); font-size: 0.88rem; margin: 0.1rem 0; }
+.score { min-width: 3rem; height: 3rem; border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; font-weight: 800; color: #fff; }
+.score-hi { background: var(--accent); } .score-mid { background: var(--accent2); }
+.score-lo { background: #94a3b8; }
+.facts { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; font-size: 0.88rem; }
+.facts .tag, .tag { background: #eef2f7; border-radius: 20px; padding: 0.15rem 0.7rem;
+  font-size: 0.8rem; color: var(--muted); }
+.card-actions { display: flex; gap: 0.5rem; }
+.muted { color: var(--muted); } .notice { background: #eef6f0; padding: 0.6rem 1rem;
+  border-radius: 8px; }
+.why { font-style: italic; color: var(--muted); font-size: 0.92rem; }
+.detail-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr 1.2fr; }
+@media (max-width: 760px) { .detail-grid { grid-template-columns: 1fr; } }
+.reasons { padding-left: 1.2rem; }
+.facts-list dt { font-weight: 700; margin-top: 0.6rem; }
+.facts-list dd { margin: 0 0 0.4rem; }
+.brief { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 1.25rem; }
+.brief-body { white-space: pre-wrap; font-size: 0.95rem; }
+.form { display: grid; gap: 1rem; max-width: 640px; }
+.form label { display: grid; gap: 0.3rem; font-weight: 600; }
+.form input[type=text], .form select { padding: 0.6rem 0.8rem; border: 1px solid var(--line);
+  border-radius: 8px; font-size: 1rem; font-weight: 400; }
+.form fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+.form legend { font-weight: 700; padding: 0 0.5rem; }
+.check { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 400;
+  margin: 0.2rem 0.8rem 0.2rem 0; }
+.calendar { width: 100%; border-collapse: collapse; background: var(--card);
+  border-radius: 12px; overflow: hidden; }
+.calendar th, .calendar td { text-align: left; padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--line); }
+.calendar th { background: #eef2f7; }
