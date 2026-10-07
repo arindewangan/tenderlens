@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TenderLens — Interactive Demo (simulated data)</title>
+<style>
+  :root { --ink:#1a2332; --muted:#5b6b7f; --accent:#0f6c3f; --accent2:#e8730c;
+          --bg:#f7f9fb; --card:#fff; --line:#e2e8f0; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.55; }
+  header { background:var(--ink); color:#fff; padding:1rem 1.5rem; }
+  header h1 { margin:0; font-size:1.4rem; }
+  .sim { background:#fff3cd; color:#7a5b00; padding:.7rem 1.5rem; font-size:.92rem;
+         border-bottom:1px solid #ffe08a; }
+  main { max-width:980px; margin:0 auto; padding:1.5rem; }
+  h2 { margin-top:2rem; }
+  .profiles { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+  .profile-card { background:var(--card); border:2px solid var(--line); border-radius:12px;
+                  padding:1rem 1.1rem; cursor:pointer; }
+  .profile-card.active { border-color:var(--accent); box-shadow:0 0 0 3px #0f6c3f22; }
+  .profile-card h3 { margin:.2rem 0; }
+  .profile-card p { margin:.2rem 0; color:var(--muted); font-size:.88rem; }
+  .cards { display:grid; gap:1rem; margin-top:1rem; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.25rem; }
+  .card-head { display:flex; gap:1rem; align-items:flex-start; }
+  .score { min-width:3rem; height:3rem; border-radius:10px; display:flex; align-items:center;
+           justify-content:center; font-weight:800; color:#fff; }
+  .hi{background:var(--accent);} .mid{background:var(--accent2);} .lo{background:#94a3b8;}
+  .card h3 { margin:0 0 .25rem; font-size:1.05rem; }
+  .meta { color:var(--muted); font-size:.88rem; margin:.1rem 0; }
+  .facts { display:flex; flex-wrap:wrap; gap:.5rem; margin:.6rem 0; font-size:.88rem; }
+  .tag { background:#eef2f7; border-radius:20px; padding:.15rem .7rem; font-size:.8rem; color:var(--muted); }
+  .btn { background:var(--accent); color:#fff; border:none; padding:.45rem 1rem; border-radius:8px;
+         cursor:pointer; font-size:.88rem; margin-right:.4rem; }
+  .btn.ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+  .reasons { font-size:.9rem; color:var(--muted); }
+  #briefModal { display:none; position:fixed; inset:0; background:#0009; z-index:10; }
+  #briefBox { background:#fff; max-width:640px; margin:6vh auto; padding:1.5rem 1.75rem;
+              border-radius:14px; max-height:84vh; overflow:auto; white-space:pre-wrap; }
+  #briefBox h3 { margin-top:0; }
+  .close { float:right; }
+  footer { text-align:center; color:var(--muted); font-size:.85rem; padding:2rem; }
+  .watch-sec { margin-top:1rem; }
+</style>
+</head>
+<body>
+<header><h1>🔍 TenderLens — interactive demo</h1></header>
+<div class="sim">⚠️ <strong>SIMULATED DEMO</strong> — all tenders, scores and briefs on this page are
+canned sample data for illustration. The real app discovers live tenders via SerpApi.</div>
+
+<main>
+  <h2>1 · Pick a business profile</h2>
+  <div class="profiles" id="profiles"></div>
+
+  <h2>2 · Your matched tenders</h2>
+  <div class="cards" id="tenders"></div>
+
+  <h2>3 · Watchlist <span class="tag" id="watchCount">0 saved</span></h2>
+  <div class="cards watch-sec" id="watchlist"><p class="meta">Star tenders above to track them here (saved in this browser only).</p></div>
+</main>
+
+<div id="briefModal"><div id="briefBox">
+  <button class="btn ghost close" onclick="closeBrief()">Close ✕</button>
+  <h3 id="briefTitle"></h3>
+  <div id="briefBody"></div>
+</div></div>
+
+<footer>TenderLens · SerpApi India Hackathon 2026 · Track: Knowledge &amp; Public Interest</footer>
+
+<script>
+const PROFILES = [
+  { id:"it", name:"Acme IT Services", desc:"IT & Software · ₹25L–₹1Cr · Karnataka · MSME",
+    sectors:["IT & Software"], turnover:"₹25 Lakh – ₹1 Cr", locations:["Karnataka"],
+    certs:["MSME"], keywords:["laptop"] },
+  { id:"build", name:"Sharma Constructions", desc:"Construction & Works · ₹1–10Cr · Madhya Pradesh",
+    sectors:["Construction & Works"], turnover:"₹1 Cr – ₹10 Cr", locations:["Madhya Pradesh"],
+    certs:[], keywords:["road"] },
+  { id:"secure", name:"SecureGuard Services", desc:"Security Services · Under ₹25L · Rajasthan · MSME",
+    sectors:["Security Services"], turnover:"Under ₹25 Lakh", locations:["Rajasthan"],
+    certs:["MSME"], keywords:["guard"] },
+];
+
+/* Simulated tender records: shape mirrors the real app's JSON API. */
+const TENDERS = [
+  { id:"T001", title:"Supply of 500 Desktop Computers for District e-Governance Offices, Karnataka",
+    authority:"Government e-Marketplace", portal:"GeM", location:"Karnataka", category:"IT & Software",
+    value:"₹2.50 Cr", emd:"₹2,00,000", due:"24 Oct 2026", days:17,
+    why:{ it:["Sector match: IT & Software is one of your business sectors.",
+              "Location match: Karnataka is in your service area.",
+              "Certification edge: tender mentions MSME-friendly terms.",
+              "Good timing: 17 days left to prepare a bid."],
+          build:["Value note: estimated ₹2,50,00,000 may exceed your capacity."],
+          secure:["Keyword note: no direct sector overlap with Security Services."] },
+    brief:"Supply of 500 desktop computers (i5, 16GB RAM) for district e-Governance offices across Karnataka.\n\nKey facts:\n• Estimated value: ₹2.50 Cr  • EMD: ₹2,00,000\n• Bid due: 24 Oct 2026 (17 days left)\n• MSE/Startup exemption applicable\n\nWhy it matters: bulk hardware orders like this are bread-and-butter for regional IT suppliers, and the MSME exemption lowers your entry cost.\n\nBid-readiness checklist:\n1. Confirm technical specs against your OEM authorisations\n2. Arrange the EMD instrument (DD / bank guarantee)\n3. Check delivery schedule across districts\n4. Verify warranty/support clauses before quoting" },
+  { id:"T002", title:"Construction of RCC Drain and CC Road in Ward 12, Indore",
+    authority:"Central Public Procurement Portal", portal:"CPPP", location:"Madhya Pradesh",
+    category:"Construction & Works", value:"₹85.00 Lakh", emd:"₹1,70,000", due:"18 Oct 2026", days:11,
+    why:{ build:["Sector match: Construction & Works is one of your business sectors.",
+                 "Location match: Madhya Pradesh is in your service area.",
+                 "Value fit: suits your turnover band.",
+                 "Good timing: 11 days left to prepare a bid."],
+          it:["No sector overlap with IT & Software."],
+          secure:["No sector overlap with Security Services."] },
+    brief:"Civil works: RCC drain and cement-concrete road in Ward 12, Indore (Madhya Pradesh).\n\nKey facts:\n• Estimated cost: ₹85 Lakh  • EMD: ₹1,70,000\n• Last date: 18 Oct 2026 (11 days left)\n\nWhy it matters: municipal ward-level works are ideal ticket sizes for mid-size regional contractors.\n\nBid-readiness checklist:\n1. Check contractor registration class required\n2. Review BOQ for material rate assumptions\n3. Arrange EMD and tender fees\n4. Visit the site before quoting" },
+  { id:"T003", title:"Hiring of 20 Security Guards for Secretariat Complex, Jaipur",
+    authority:"Government e-Marketplace", portal:"GeM", location:"Rajasthan",
+    category:"Security Services", value:"₹60.00 Lakh", emd:"₹1,20,000", due:"12 Nov 2026", days:36,
+    why:{ secure:["Sector match: Security Services is one of your business sectors.",
+                  "Location match: Rajasthan is in your service area.",
+                  "Certification edge: MSME bidders exempt from EMD.",
+                  "Comfortable timeline: 36 days left to bid."],
+          it:["No sector overlap with IT & Software."],
+          build:["No sector overlap with Construction & Works."] },
+    brief:"One-year contract for 20 security guards at the Secretariat Complex, Jaipur.\n\nKey facts:\n• Estimated value: ₹60 Lakh  • EMD: ₹1,20,000 (MSME exempt)\n• Bid due: 12 Nov 2026 (36 days left)\n\nWhy it matters: annual manpower contracts give predictable revenue; the MSME EMD exemption is a direct cost saving for you.\n\nBid-readiness checklist:\n1. Confirm PSARA licence validity for Rajasthan\n2. Check minimum wage + ESI/PF compliance costing\n3. Prepare guard deployment roster format\n4. Claim the MSME EMD exemption in your bid" },
+  { id:"T004", title:"Development of Citizen Grievance Mobile App, Coimbatore",
+    authority:"Tamil Nadu Tenders", portal:"TN Tenders", location:"Tamil Nadu",
+    category:"IT & Software", value:"₹35.00 Lakh", emd:"not stated", due:"28 Oct 2026", days:21,
+    why:{ it:["Sector match: IT & Software is one of your business sectors.",
+              "Value fit: suits your turnover band.",
+              "Comfortable timeline: 21 days left to bid."],
+          build:["No sector overlap with Construction & Works."],
+          secure:["No sector overlap with Security Services."] },
+    brief:"Android/iOS citizen grievance redressal app with admin dashboard for Coimbatore City Municipal Corporation.\n\nKey facts:\n• Project cost: ~₹35 Lakh  • EMD: Startup-India recognised bidders may claim exemption\n• Last date: 28 Oct 2026 (21 days left)\n\nWhy it matters: civic-tech app builds are portfolio gold and this ticket size fits small studios.\n\nBid-readiness checklist:\n1. Check Startup-India EMD exemption eligibility\n2. Review required integrations (SMS gateway, GIS)\n3. Plan maintenance/support period costing\n4. Prepare past-work credentials" },
+  { id:"T005", title:"Supply and Installation of 10kW Rooftop Solar Plants, Pune District",
+    authority:"Maharashtra e-Tendering", portal:"MahaTenders", location:"Maharashtra",
+    category:"Electrical & Power", value:"₹1.20 Cr", emd:"₹2,40,000", due:"05 Nov 2026", days:29,
+    why:{ it:["No sector overlap with IT & Software."],
+          build:["Keyword note: civil mounting work sometimes bundled — check scope."],
+          secure:["No sector overlap with Security Services."] },
+    brief:"Supply + installation of 10kW rooftop solar plants at 15 primary schools in Pune district.\n\nKey facts:\n• Estimated cost: ₹1.20 Cr  • EMD: ₹2,40,000\n• Closing: 05 Nov 2026 (29 days left)\n\nWhy it matters: school solar rollouts repeat across districts — a win here becomes a template.\n\nBid-readiness checklist:\n1. Confirm MNRE channel-partner / empanelment requirement\n2. Check net-metering liaison responsibility\n3. Price 5-year O&M if bundled\n4. Arrange EMD instrument" },
+];
+
+const SCORE = { it:{T001:92,T004:78,T005:28,T002:12,T003:10},
+                build:{T002:90,T005:35,T001:15,T003:12,T004:8},
+                secure:{T003:93,T001:12,T002:10,T004:8,T005:8} };
+
+let activeProfile = "it";
+let watch = JSON.parse(localStorage.getItem("tenderlens_watch") || "[]");
+
+function scoreClass(s){ return s>=60?"hi":s>=35?"mid":"lo"; }
+
+function renderProfiles(){
+  document.getElementById("profiles").innerHTML = PROFILES.map(p =>
+    `<div class="profile-card ${p.id===activeProfile?"active":""}" onclick="setProfile('${p.id}')">
+       <h3>${p.name}</h3><p>${p.desc}</p>
+     </div>`).join("");
+}
+
+function renderTenders(){
+  const ranked = [...TENDERS].sort((a,b)=>SCORE[activeProfile][b.id]-SCORE[activeProfile][a.id]);
+  document.getElementById("tenders").innerHTML = ranked.map(t=>{
+    const s = SCORE[activeProfile][t.id];
+    const watched = watch.includes(t.id);
+    return `<article class="card"><div class="card-head">
+      <span class="score ${scoreClass(s)}">${s}</span>
+      <div><h3>${t.title}</h3>
+      <p class="meta">${t.authority} · ${t.portal} · ${t.location}</p></div></div>
+      <div class="facts"><span>💰 ${t.value}</span><span>🏦 EMD ${t.emd}</span>
+      <span>📅 Due ${t.due}</span><span class="tag">${t.category}</span></div>
+      <p class="reasons">▸ ${t.why[activeProfile][0]}</p>
+      <button class="btn" onclick='openBrief(${JSON.stringify(t.id)})'>Read brief</button>
+      <button class="btn ghost" onclick="toggleWatch('${t.id}')">${watched?"★ Watched":"☆ Watch"}</button>
+    </article>`;
+  }).join("");
+  renderWatch();
+}
+
+function renderWatch(){
+  document.getElementById("watchCount").textContent = watch.length + " saved";
+  const items = TENDERS.filter(t=>watch.includes(t.id));
+  document.getElementById("watchlist").innerHTML = items.length ? items.map(t =>
+    `<article class="card"><h3>${t.title}</h3>
+     <p class="meta">Score ${SCORE[activeProfile][t.id]}/100 · due ${t.due}</p>
+     <button class="btn ghost" onclick="toggleWatch('${t.id}')">Remove</button></article>`
+  ).join("") : `<p class="meta">Star tenders above to track them here (saved in this browser only).</p>`;
+}
+
+function setProfile(id){ activeProfile = id; renderProfiles(); renderTenders(); }
+function toggleWatch(id){
+  watch = watch.includes(id) ? watch.filter(w=>w!==id) : [...watch, id];
+  localStorage.setItem("tenderlens_watch", JSON.stringify(watch));
+  renderTenders();
+}
+function openBrief(id){
+  const t = TENDERS.find(x=>x.id===id);
+  document.getElementById("briefTitle").textContent = t.title;
+  document.getElementById("briefBody").textContent =
+    "Tender brief (simulated sample)\n\n" + t.brief;
+  document.getElementById("briefModal").style.display = "block";
+}
+function closeBrief(){ document.getElementById("briefModal").style.display = "none"; }
+
+renderProfiles(); renderTenders();
+</script>
+</body>
+</html>
