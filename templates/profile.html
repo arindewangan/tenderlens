@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Business profile{% endblock %}
+{% block content %}
+<h1>Business profile</h1>
+<p class="muted">TenderLens scores every tender against this profile. The more accurate it is, the better your matches.</p>
+<form method="post" class="form">
+  <label>Business name
+    <input type="text" name="name" value="{{ profile.name }}">
+  </label>
+  <fieldset>
+    <legend>Sectors you work in</legend>
+    {% for c in categories %}
+    <label class="check"><input type="checkbox" name="sectors" value="{{ c }}"
+      {% if c in profile.sectors %}checked{% endif %}> {{ c }}</label>
+    {% endfor %}
+  </fieldset>
+  <label>Annual turnover band
+    <select name="turnover_band">
+      {% for b in bands %}
+      <option {% if b == profile.turnover_band %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Locations you serve (comma-separated — cities or states)
+    <input type="text" name="locations" value="{{ profile.locations|join(', ') }}"
+           placeholder="e.g. Karnataka, Bengaluru, PAN India">
+  </label>
+  <fieldset>
+    <legend>Certifications</legend>
+    {% for c in certs %}
+    <label class="check"><input type="checkbox" name="certifications" value="{{ c }}"
+      {% if c in profile.certifications %}checked{% endif %}> {{ c }}</label>
+    {% endfor %}
+  </fieldset>
+  <label>Extra watch keywords (comma-separated)
+    <input type="text" name="keywords" value="{{ profile.keywords|join(', ') }}"
+           placeholder="e.g. CCTV, ambulance">
+  </label>
+  <button class="btn" type="submit">Save &amp; re-rank tenders</button>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Watchlist{% endblock %}
+{% block content %}
+<h1>Watchlist</h1>
+{% if tenders %}
+<div class="cards">
+{% for t in tenders %}
+  <article class="card">
+    <h3><a href="{{ url_for('tender_detail', tid=t.id) }}">{{ t.title }}</a></h3>
+    <p class="meta">{{ t.authority }} · score {{ t.match_score }}/100</p>
+    <div class="facts">
+      {% if t.bid_due_date %}<span>📅 Due {{ t.bid_due_date.strftime('%d %b %Y') }}</span>{% endif %}
+      {% if t.value_inr %}<span>💰 ≈ ₹{{ "{:,}".format(t.value_inr) }}</span>{% endif %}
+    </div>
+    <form action="{{ url_for('watchlist_toggle', tid=t.id) }}" method="post">
+      <button class="btn small ghost" type="submit">Remove</button>
+    </form>
+  </article>
+{% endfor %}
+</div>
+{% else %}
+<p class="muted">Nothing watched yet. Star tenders from the
+<a href="{{ url_for('tenders') }}">tenders page</a> to track them here.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}TenderLens{% endblock %} — Indian tender intelligence</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">🔍 TenderLens</a>
+  <nav>
+    <a href="{{ url_for('tenders') }}">Tenders</a>
+    <a href="{{ url_for('digest') }}">Digest</a>
+    <a href="{{ url_for('watchlist') }}">Watchlist ({{ watchlist|length }})</a>
+    <a href="{{ url_for('profile') }}">Business profile</a>
+  </nav>
+</header>
+{% if demo_mode %}
+<div class="demo-banner">⚠️ {{ demo_notice }}</div>
+{% endif %}
+<main class="container">
+{% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <p>TenderLens · Built for the SerpApi India Hackathon 2026 ·
+  Tender data: <strong>{{ 'live SerpApi search' if not demo_mode else 'simulated demo data' }}</strong></p>
+</footer>
+</body>
+</html>

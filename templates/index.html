@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Find the government tenders your business can actually win.</h1>
+  <p class="lede">TenderLens aggregates Indian public-sector tenders from GeM, CPPP and
+  state e-procurement portals — discovered live via <strong>SerpApi</strong> —
+  extracts the EMD, deadlines and values that matter, and scores each tender
+  against <em>your</em> business profile.</p>
+  <form class="searchbar" action="{{ url_for('tenders') }}" method="get">
+    <input type="text" name="q" placeholder="Try: computers, construction, security, solar…" autofocus>
+    <button type="submit">Search tenders</button>
+  </form>
+  <div class="cta-row">
+    <a class="btn" href="{{ url_for('profile') }}">Set up my business profile →</a>
+    <a class="btn ghost" href="{{ url_for('tenders', refresh='1') }}">Browse all tenders</a>
+  </div>
+</section>
+<section class="how">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><strong>Discover.</strong> SerpApi's Google Search API runs site-restricted
+      queries across India's tender portals — search data is the core of the app.</li>
+    <li><strong>Extract.</strong> EMD, bid due dates, estimated values, authority,
+      location and category are parsed from every listing.</li>
+    <li><strong>Match.</strong> Each tender is scored 0–100 against your sector,
+      turnover band, locations and certifications — with reasons, not just a number.</li>
+    <li><strong>Brief.</strong> Plain-English briefs explain why a tender matters
+      and what to check before you bid.</li>
+  </ol>
+</section>
+<section class="track-note">
+  <p>Track: <strong>Knowledge &amp; Public Interest</strong> — making public procurement
+  accessible to India's small businesses.</p>
+</section>
+{% endblock %}

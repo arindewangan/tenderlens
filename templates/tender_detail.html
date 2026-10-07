@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Tender {{ tender.id }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('tenders') }}">← Back to tenders</a>
+<h1>{{ tender.title }}</h1>
+<p class="meta">{{ tender.authority }} · {{ tender.portal }}{% if tender.location %} · {{ tender.location }}{% endif %}</p>
+
+<div class="detail-grid">
+  <section>
+    <h2>Fit for {{ profile.name }}: {{ tender.match_score }}/100</h2>
+    <ul class="reasons">
+      {% for r in tender.match_reasons %}<li>{{ r }}</li>{% endfor %}
+    </ul>
+    <dl class="facts-list">
+      <dt>Estimated value</dt><dd>{% if tender.value_inr %}₹{{ "{:,}".format(tender.value_inr) }}{% else %}not stated{% endif %}</dd>
+      <dt>EMD</dt><dd>{% if tender.emd_inr %}₹{{ "{:,}".format(tender.emd_inr) }}{% else %}not stated{% endif %}</dd>
+      <dt>Bid due</dt><dd>{% if tender.bid_due_date %}{{ tender.bid_due_date.strftime('%d %b %Y') }}{% else %}not stated{% endif %}</dd>
+      <dt>Category</dt><dd>{{ tender.category }}</dd>
+      <dt>Source</dt><dd><a href="{{ tender.url }}" target="_blank" rel="noopener">{{ tender.url }}</a></dd>
+    </dl>
+    <form action="{{ url_for('watchlist_toggle', tid=tender.id) }}" method="post">
+      <button class="btn" type="submit">{% if tender.id in watchlist %}★ Remove from watchlist{% else %}☆ Add to watchlist{% endif %}</button>
+    </form>
+  </section>
+  <section class="brief">
+    <h2>Tender brief
+      <span class="tag">{{ 'AI-written' if brief_source == 'llm' else 'Template brief (no LLM key set)' }}</span>
+    </h2>
+    <div class="brief-body">{{ brief }}</div>
+  </section>
+</div>
+{% endblock %}

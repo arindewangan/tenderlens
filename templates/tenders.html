@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Tenders{% endblock %}
+{% block content %}
+<h1>Tenders</h1>
+<form class="searchbar small" action="{{ url_for('tenders') }}" method="get">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search keywords…">
+  <input type="hidden" name="refresh" value="1">
+  <button type="submit">Search</button>
+</form>
+{% if notice %}<p class="notice">{{ notice }}</p>{% endif %}
+<p class="muted">{{ tenders|length }} tenders · ranked for
+<strong>{{ profile.name }}</strong> (<a href="{{ url_for('profile') }}">edit profile</a>)</p>
+
+<div class="cards">
+{% for t in tenders %}
+  <article class="card">
+    <div class="card-head">
+      <span class="score score-{{ 'hi' if t.match_score >= 60 else 'mid' if t.match_score >= 35 else 'lo' }}">{{ t.match_score }}</span>
+      <div>
+        <h3><a href="{{ url_for('tender_detail', tid=t.id) }}">{{ t.title }}</a></h3>
+        <p class="meta">{{ t.authority }} · {{ t.portal }} {% if t.location %}· {{ t.location }}{% endif %}</p>
+      </div>
+    </div>
+    <div class="facts">
+      {% if t.value_inr %}<span>💰 ≈ ₹{{ "{:,}".format(t.value_inr) }}</span>{% endif %}
+      {% if t.emd_inr %}<span>🏦 EMD ₹{{ "{:,}".format(t.emd_inr) }}</span>{% endif %}
+      {% if t.bid_due_date %}<span>📅 Due {{ t.bid_due_date.strftime('%d %b %Y') }}</span>{% endif %}
+      <span class="tag">{{ t.category }}</span>
+    </div>
+    <div class="card-actions">
+      <a class="btn small" href="{{ url_for('tender_detail', tid=t.id) }}">Brief &amp; details</a>
+      <form action="{{ url_for('watchlist_toggle', tid=t.id) }}" method="post" style="display:inline">
+        <button class="btn small ghost" type="submit">
+          {% if t.id in watchlist %}★ Watched{% else %}☆ Watch{% endif %}
+        </button>
+      </form>
+    </div>
+  </article>
+{% else %}
+  <p>No tenders found. Try different keywords.</p>
+{% endfor %}
+</div>
+{% endblock %}

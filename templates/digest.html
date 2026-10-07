@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Digest{% endblock %}
+{% block content %}
+<h1>📬 Tender digest — {{ today.strftime('%d %b %Y') }}</h1>
+<p class="muted">Top matches for <strong>{{ profile.name }}</strong>, plus your deadline calendar.</p>
+
+<h2>Top matches</h2>
+<div class="cards">
+{% for t in tenders %}
+  <article class="card">
+    <div class="card-head">
+      <span class="score score-{{ 'hi' if t.match_score >= 60 else 'mid' if t.match_score >= 35 else 'lo' }}">{{ t.match_score }}</span>
+      <div>
+        <h3><a href="{{ url_for('tender_detail', tid=t.id) }}">{{ t.title }}</a></h3>
+        <p class="meta">{{ t.authority }}{% if t.bid_due_date %} · due {{ t.bid_due_date.strftime('%d %b %Y') }}{% endif %}</p>
+      </div>
+    </div>
+    {% if t.match_reasons %}<p class="why">{{ t.match_reasons[0] }}</p>{% endif %}
+  </article>
+{% else %}
+  <p class="muted">No tenders loaded yet — <a href="{{ url_for('tenders', refresh='1') }}">run a search</a> first.</p>
+{% endfor %}
+</div>
+
+<h2>📅 Deadline calendar</h2>
+<table class="calendar">
+  <thead><tr><th>Due</th><th>Tender</th><th>Score</th></tr></thead>
+  <tbody>
+  {% for t in calendar %}
+    <tr>
+      <td>{{ t.bid_due_date.strftime('%d %b') }}</td>
+      <td><a href="{{ url_for('tender_detail', tid=t.id) }}">{{ t.title[:80] }}</a></td>
+      <td>{{ t.match_score }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="3" class="muted">No upcoming deadlines found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
